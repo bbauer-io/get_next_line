@@ -6,10 +6,17 @@
 /*   By: bbauer <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/12/12 15:55:06 by bbauer            #+#    #+#             */
-/*   Updated: 2016/12/12 15:55:35 by bbauer           ###   ########.fr       */
+/*   Updated: 2016/12/13 23:19:58 by bbauer           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
+int		get_next_line(int const fd, char **line)
+{
 
+	if (!line)
+		return (-1);
+
+	return (0);
+}
