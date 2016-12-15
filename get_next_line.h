@@ -10,13 +10,23 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef get_next_line
-# define get_next_line
-# define BUFF_SIZE 20
+#ifndef GET_NEXT_LINE
+# define GET_NEXT_LINE
+
+# define BUFF_SIZE 4
+# define NEWLINE 10
 
 # include "libft.h"
 # include <stdlib.h>
+# include <unistd.h>
 
-int		get_next_line(const int fd, char **line);
+typedef struct		s_file_info
+{
+	int				fd;
+	char			*current_line;
+	char			*file_content;
+}					t_file_info;
+
+int		get_next_line(int const fd, char **line);
 
 #endif
