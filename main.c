@@ -7,9 +7,11 @@ int		main(int argc, char **argv)
 	char	*line;
 	int		fd;
 
+	ft_putstr("hello?");
 	if (argc == 2)
 	{
 		i = 0;
+		ft_putstr("FORTHELOVEOFGOD,OPEN");
 		fd = open(argv[1], O_RDONLY);
 		ft_putstr("===Begin===");
 		while (1 == get_next_line(fd, &line))

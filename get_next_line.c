@@ -6,7 +6,7 @@
 /*   By: bbauer <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/12/12 15:55:06 by bbauer            #+#    #+#             */
-/*   Updated: 2016/12/13 23:19:58 by bbauer           ###   ########.fr       */
+/*   Updated: 2016/12/15 16:48:36 by bbauer           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 void		read_file(int fd, t_file_info *lininf)
 {
 	int		ret;
-	char	buffer[BUFF_SIZE + 1];
+	char		buffer[BUFF_SIZE + 1];
 
 	ret = 1;
 	while (ret)
@@ -25,9 +25,9 @@ void		read_file(int fd, t_file_info *lininf)
 		buffer[ret] = '\0';
 		if (ret)
 		{
-			ft_realloc(lininf->file_content, strlen(lininf->file_content), ret);
-			ft_strndup(&lininf->file_content[strlen(lininf->file_content)], ret);
-			lininf->file_content[strlen(lininf->file_content) + ret] = '\0';
+			ft_realloc(lininf->file_content, ft_strlen(lininf->file_content), ret);
+			ft_strndup(&lininf->file_content[ft_strlen(lininf->file_content)], ret);
+			lininf->file_content[ft_strlen(lininf->file_content) + ret] = '\0';
 		}
 	}
 	return ;
@@ -44,7 +44,7 @@ int			find_end_of_line(char *str)
 	i = 1;
 	while (str[i] != '\n' && str[i] != '\0')
 		i++;
-	if (i == 1  && str[i] == '\0')
+	if (i == 1 && str[i] == '\0')
 		return (0); // There is no next line!
 	return (i); // number of bytes to the newline
 }
@@ -66,7 +66,7 @@ int			get_next_line(int const fd, char **line)
 	if (!line)
 		return (-1);
 	read_file(fd, &lininf);
-	if (!find_end_of_line(lininf.current_line)) // END OF FILE!!!
+	if (!find_end_of_line(lininf.current_line))
 		return (0);
 	*line = ft_strndup(lininf.current_line, find_end_of_line(lininf.current_line));
 	if (lininf.current_line)
