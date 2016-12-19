@@ -98,15 +98,20 @@ int			get_next_line(int const fd, char **line)
 
 	if (!(lininf.fd) || lininf.fd != fd)
 		set_struct_zero(&lininf);
+	lininf.fd = fd;
 	if (!line)
 		return (-1);
-	read_file(fd, &lininf);
-	if (!find_end_of_line(lininf.file_content))
+	if (!lininf.file_content)
+	{
+		read_file(fd, &lininf);
+		lininf.current_line = lininf.file_content;
+	}
+	if (!find_end_of_line(lininf.current_line))
 		return (0);
-	lininf.current_line = lininf.file_content;
+	ft_memdel((void **)line);
 	*line = ft_strndup(lininf.current_line, find_end_of_line(lininf.current_line));
 	if (lininf.current_line)
-		lininf.current_line = &lininf.current_line[find_end_of_line(lininf.current_line)];
+		lininf.current_line = &lininf.current_line[find_end_of_line(lininf.current_line) + 1];
 	else
 		lininf.current_line = &lininf.file_content[find_end_of_line(lininf.file_content)];
 	return (1);
