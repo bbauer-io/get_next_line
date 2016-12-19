@@ -13,7 +13,7 @@
 #ifndef GET_NEXT_LINE
 # define GET_NEXT_LINE
 
-# define BUFF_SIZE 4
+# define BUFF_SIZE 25
 
 # include "libft.h"
 # include <stdlib.h>

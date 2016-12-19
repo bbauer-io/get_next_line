@@ -1,0 +1,9 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "0.1.0",
+    "command": "gcc",
+    "isShellCommand": true,
+    "args": ["-g", "-Wall", "-Wextra", "-Werror", "main.c", "get_next_line.c", "get_next_line.h", "libft.h", "libft.a"],
+    "showOutput": "always"
+}
