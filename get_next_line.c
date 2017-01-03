@@ -6,7 +6,7 @@
 /*   By: bbauer <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/12/12 15:55:06 by bbauer            #+#    #+#             */
-/*   Updated: 2017/01/03 15:20:53 by bbauer           ###   ########.fr       */
+/*   Updated: 2017/01/03 15:43:17 by bbauer           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ void			null_termination_check(t_file_info *li, int ret)
 	return ;
 }
 
-void			read_file(int const fd, t_file_info *li)
+int				read_file(int const fd, t_file_info *li)
 {
 	int		ret;
 	char	buffer[BUFF_SIZE + 1];
@@ -48,7 +48,7 @@ void			read_file(int const fd, t_file_info *li)
 	while (ret)
 	{
 		if (-1 == (ret = read(fd, buffer, BUFF_SIZE)))
-			return ;
+			return (-1);
 		buffer[ret] = '\0';
 		if (!li->file)
 		{
@@ -64,7 +64,7 @@ void			read_file(int const fd, t_file_info *li)
 		li->current_line = li->file;
 	}
 	null_termination_check(li, ret);
-	return ;
+	return (0);
 }
 
 int				get_next_line(int const fd, char **line)
@@ -79,7 +79,8 @@ int				get_next_line(int const fd, char **line)
 	if (!line || fd < 0)           // check for valid parameters.
 		return (-1);
 	if (!(li->file))                 // check if fd has been read yet.
-		read_file(fd, li);
+		if (read_file(fd, li) == -1)
+			return (-1);
 	if (li->current_line == NULL || *li->current_line == '\0')   // strchr returns NULL after final line read
 		return (0);
 	*line = ft_strndup(li->current_line, ft_wrdlen(li->current_line, '\n'));
