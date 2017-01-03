@@ -6,45 +6,43 @@
 /*   By: bbauer <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/12/12 15:55:06 by bbauer            #+#    #+#             */
-/*   Updated: 2016/12/15 16:48:36 by bbauer           ###   ########.fr       */
+/*   Updated: 2017/01/03 15:20:53 by bbauer           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-void	ft_memdel(void **ap)
+t_file_info		*find_fd_in_list(int const fd, t_file_info *list)
 {
-	if (!ap)
-		return ;
-	if (*ap)
+	if (list)
+		while (list->fd != fd && list->next)
+			list = list->next;
+	if (!list || (!list->next && fd != list->fd))
 	{
-		free(*ap);
-		*ap = NULL;
+		if (NULL == (list = (t_file_info *)malloc(sizeof(t_file_info))))
+			return (NULL);
+		list->fd = fd;
+		list->file = NULL;
+		list->current_line = NULL;
+		list->next = NULL;
+	}
+	return (list);
+}
+
+void			null_termination_check(t_file_info *li, int ret)
+{
+	if (li->file[ret - 1] != '\0')
+	{
+		ft_realloc(li->file, ret, 1);
+		li->file[ret] = '\0';
 	}
 	return ;
 }
 
-void	*ft_realloc(void *ptr, size_t size_original, size_t size_add)
+void			read_file(int const fd, t_file_info *li)
 {
-	void	*new;
-
-	if (!size_original && !size_add)
-		size_add = 1;
-	if (!(new = malloc(size_original + size_add)))
-		return (NULL);
-	if (ptr)
-	{
-		ft_memcpy(new, ptr, size_original);
-		ft_memdel(&ptr);
-	}
-	return (new);
-}
-
-void		read_file(int fd, t_file_info *lininf)
-{
-	int			ret;
-	char		buffer[BUFF_SIZE + 1];
-	int			temp;
+	int		ret;
+	char	buffer[BUFF_SIZE + 1];
 
 	ret = 1;
 	while (ret)
@@ -52,66 +50,41 @@ void		read_file(int fd, t_file_info *lininf)
 		if (-1 == (ret = read(fd, buffer, BUFF_SIZE)))
 			return ;
 		buffer[ret] = '\0';
-		if (!lininf->file_content)
+		if (!li->file)
 		{
-			lininf->file_content = (char *)malloc(sizeof(char) * (ret + 1));
-			ft_strcpy(lininf->file_content, buffer);
-			lininf->file_content[ret] = '\0';
+			li->file = (char *)malloc(sizeof(char) * (ret + 1));
+			ft_strcpy(li->file, buffer);
+			li->file[ret] = '\0';
 		}
 		else if (ret)
 		{
-			temp = ft_strlen(lininf->file_content) + 1;
-			lininf->file_content = ft_realloc(lininf->file_content, temp, ret);
-			ft_strcat(lininf->file_content, buffer);
+			li->file = ft_realloc(li->file, ft_strlen(li->file) + 1, ret);
+			ft_strcat(li->file, buffer);
 		}
-		lininf->current_line = lininf->file_content;
+		li->current_line = li->file;
 	}
+	null_termination_check(li, ret);
 	return ;
 }
 
-/*
-** Finds the next \n or \0 character.
-*/
-
-int			find_end_of_line(char *str)
+int				get_next_line(int const fd, char **line)
 {
-	int		i;
+	static t_file_info		*list; // points to  beginning of list.
+	t_file_info				*li;   // points to relevant list item.
 
-	if (str[0] == '\0')
-		return (0);
-	i = 1;
-	while (str[i] != '\n' && str[i] != '\0')
-		i++;
-	if (i == 1 && str[i] == '\0')
-		return (0); // There is no next line!
-	return (i); // number of bytes to the newline
-}
-
-void		set_struct_zero(t_file_info *lininf)
-{
-	lininf->fd = 0;
-	lininf->file_content = NULL;
-	lininf->current_line = NULL;
-	return ;
-}
-
-int			get_next_line(int const fd, char **line)
-{
-	static t_file_info		lininf;  // "Line Info"
-
-	if (lininf.fd != fd)
-		set_struct_zero(&lininf);
-	lininf.fd = fd;
-	if (!line || fd == -1)
+	if (NULL == (li = find_fd_in_list(fd, list)))
 		return (-1);
-	if (!lininf.file_content)
-		read_file(fd, &lininf);
-	if (!find_end_of_line(lininf.current_line))
+	if (!list)
+		list = li;
+	if (!line || fd < 0)           // check for valid parameters.
+		return (-1);
+	if (!(li->file))                 // check if fd has been read yet.
+		read_file(fd, li);
+	if (li->current_line == NULL || *li->current_line == '\0')   // strchr returns NULL after final line read
 		return (0);
-	*line = ft_strndup(lininf.current_line, find_end_of_line(lininf.current_line));
-	//if (lininf.current_line)
-		lininf.current_line = &lininf.current_line[find_end_of_line(lininf.current_line) + 1];
-	else
-		lininf.current_line = &lininf.file_content[find_end_of_line(lininf.file_content)];
+	*line = ft_strndup(li->current_line, ft_wrdlen(li->current_line, '\n'));
+	li->current_line = ft_strchr(li->current_line, '\n');
+	while (li->current_line && *li->current_line == '\n') // skip over consecutive or trailing '\n' chars
+		li->current_line++;
 	return (1);
 }
