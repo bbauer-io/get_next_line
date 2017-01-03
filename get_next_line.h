@@ -13,7 +13,7 @@
 #ifndef GET_NEXT_LINE
 # define GET_NEXT_LINE
 
-# define BUFF_SIZE 25
+# define BUFF_SIZE 1024
 
 # include "libft.h"
 # include <stdlib.h>
@@ -21,9 +21,10 @@
 
 typedef struct		s_file_info
 {
-	int				fd;
-	char			*current_line;
-	char			*file_content;
+	int						fd;
+	char					*current_line;
+	char					*file;
+	struct s_file_info		*next;
 }					t_file_info;
 
 int		get_next_line(int const fd, char **line);

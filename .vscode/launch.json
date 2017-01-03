@@ -8,7 +8,7 @@
             "request": "launch",
             "preLaunchTask": "gcc",
             "program": "${workspaceRoot}/a.out",
-            "args": ["/Users/bbauer/projects/get_next_line/test.txt"],
+            "args": ["/Users/bbauer/42FileChecker/srcs/gnl/gnl7_2.txt"],
             "stopAtEntry": false,
             "cwd": "${workspaceRoot}",
             "environment": [],

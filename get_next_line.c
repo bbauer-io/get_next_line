@@ -64,6 +64,7 @@ void		read_file(int fd, t_file_info *lininf)
 			lininf->file_content = ft_realloc(lininf->file_content, temp, ret);
 			ft_strcat(lininf->file_content, buffer);
 		}
+		lininf->current_line = lininf->file_content;
 	}
 	return ;
 }
@@ -76,6 +77,8 @@ int			find_end_of_line(char *str)
 {
 	int		i;
 
+	if (str[0] == '\0')
+		return (0);
 	i = 1;
 	while (str[i] != '\n' && str[i] != '\0')
 		i++;
@@ -96,21 +99,17 @@ int			get_next_line(int const fd, char **line)
 {
 	static t_file_info		lininf;  // "Line Info"
 
-	if (!(lininf.fd) || lininf.fd != fd)
+	if (lininf.fd != fd)
 		set_struct_zero(&lininf);
 	lininf.fd = fd;
-	if (!line)
+	if (!line || fd == -1)
 		return (-1);
 	if (!lininf.file_content)
-	{
 		read_file(fd, &lininf);
-		lininf.current_line = lininf.file_content;
-	}
 	if (!find_end_of_line(lininf.current_line))
 		return (0);
-	ft_memdel((void **)line);
 	*line = ft_strndup(lininf.current_line, find_end_of_line(lininf.current_line));
-	if (lininf.current_line)
+	//if (lininf.current_line)
 		lininf.current_line = &lininf.current_line[find_end_of_line(lininf.current_line) + 1];
 	else
 		lininf.current_line = &lininf.file_content[find_end_of_line(lininf.file_content)];
