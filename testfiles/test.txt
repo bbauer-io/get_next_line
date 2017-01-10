@@ -1,6 +1,0 @@
-Hello
-World
-You're
-Getting me down
-With So many Segfaults
-I think I might drown

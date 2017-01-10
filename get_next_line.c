@@ -6,7 +6,7 @@
 /*   By: bbauer <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/12/12 15:55:06 by bbauer            #+#    #+#             */
-/*   Updated: 2017/01/03 15:43:17 by bbauer           ###   ########.fr       */
+/*   Updated: 2017/01/09 19:37:08 by bbauer           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,18 @@ t_file_info		*find_fd_in_list(int const fd, t_file_info *list)
 {
 	if (list)
 		while (list->fd != fd && list->next)
-			list = list->next;
-	if (!list || (!list->next && fd != list->fd))
+			list = list->next;						// cycle to end of the list
+	if (list && list->fd != fd && !list->next)
+	{
+		if (NULL == (list->next = (t_file_info *)malloc(sizeof(t_file_info))))
+			return (NULL);
+		list = list->next;
+		list->fd = fd;
+		list->file = NULL;
+		list->current_line = NULL;
+		list->next = NULL;
+	}
+	else if (!list || (!list->next && fd != list->fd))
 	{
 		if (NULL == (list = (t_file_info *)malloc(sizeof(t_file_info))))
 			return (NULL);
@@ -29,12 +39,12 @@ t_file_info		*find_fd_in_list(int const fd, t_file_info *list)
 	return (list);
 }
 
-void			null_termination_check(t_file_info *li, int ret)
+void			null_termination_check(t_file_info *li, int length)
 {
-	if (li->file[ret - 1] != '\0')
+	if (li->file[length - 1] != '\0')
 	{
-		ft_realloc(li->file, ret, 1);
-		li->file[ret] = '\0';
+		li->file = ft_realloc(li->file, length, 1);
+		li->file[length] = '\0';
 	}
 	return ;
 }
@@ -43,7 +53,9 @@ int				read_file(int const fd, t_file_info *li)
 {
 	int		ret;
 	char	buffer[BUFF_SIZE + 1];
+	int		length;
 
+	length = 0;
 	ret = 1;
 	while (ret)
 	{
@@ -58,12 +70,13 @@ int				read_file(int const fd, t_file_info *li)
 		}
 		else if (ret)
 		{
-			li->file = ft_realloc(li->file, ft_strlen(li->file) + 1, ret);
+			li->file = ft_realloc(li->file, ft_strlen (li->file) + 1, ret);
 			ft_strcat(li->file, buffer);
 		}
-		li->current_line = li->file;
+		length += ret;
 	}
-	null_termination_check(li, ret);
+	null_termination_check(li, length);
+	li->current_line = li->file;
 	return (0);
 }
 
@@ -79,13 +92,16 @@ int				get_next_line(int const fd, char **line)
 	if (!line || fd < 0)           // check for valid parameters.
 		return (-1);
 	if (!(li->file))                 // check if fd has been read yet.
-		if (read_file(fd, li) == -1)
+		if (-1 == read_file(fd, li))
 			return (-1);
+	if (li->current_line && *li->current_line == '\n') // advance over consecutive '\n' chars
+		li->current_line++;
 	if (li->current_line == NULL || *li->current_line == '\0')   // strchr returns NULL after final line read
+	{
+		*line = NULL;
 		return (0);
+	}
 	*line = ft_strndup(li->current_line, ft_wrdlen(li->current_line, '\n'));
 	li->current_line = ft_strchr(li->current_line, '\n');
-	while (li->current_line && *li->current_line == '\n') // skip over consecutive or trailing '\n' chars
-		li->current_line++;
-	return (1);
+		return (1);
 }
